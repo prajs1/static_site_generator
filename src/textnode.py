@@ -31,6 +31,7 @@ class TextNode:
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     props = None
+    val = text_node.text
     match text_node.text_type:
         case TextType.TEXT:
             tag = None
@@ -46,7 +47,7 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
         case TextType.IMAGE:
             tag = "img"
             props = {"src": text_node.url, "alt": text_node.text}
-            text_node.text = None
+            val = ""
         case _:
             raise ValueError("Not a known TextType value")
-    return LeafNode(tag, text_node.text, props)
+    return LeafNode(tag, val, props)

@@ -1,7 +1,7 @@
 from enum import Enum
-from parentnode import ParentNode
-from leafnode import LeafNode
+
 from inline_extractors import text_to_textnodes
+from parentnode import ParentNode
 from textnode import text_node_to_html_node
 
 
@@ -52,8 +52,8 @@ def block_to_block_type(block: str) -> BlockType:
 
 
 def block_to_heading(block: str) -> ParentNode:
-    number = len(block.split(' ')[0])
-    textnodes = text_to_textnodes(block[number+1:])
+    number = len(block.split(" ")[0])
+    textnodes = text_to_textnodes(block[number + 1 :])
     children = []
     for textnode in textnodes:
         children.append(text_node_to_html_node(textnode))
@@ -74,4 +74,11 @@ def block_to_list(block: str, block_type: BlockType) -> ParentNode:
             children.append(text_node_to_html_node(textnode))
         lis.append(ParentNode(tag="li", children=children))
     return ParentNode(tag=block_type.value, children=lis)
-    
+
+
+def extract_title(markdown: str) -> str:
+    lines = markdown.splitlines()
+    for line in lines:
+        if line.startswith("# "):
+            return line[2:].strip()
+    raise ValueError("No h1 found for title")

@@ -1,6 +1,11 @@
 import unittest
 
-from block_extractors import BlockType, block_to_block_type, markdown_to_blocks
+from block_extractors import (
+    BlockType,
+    block_to_block_type,
+    extract_title,
+    markdown_to_blocks,
+)
 
 
 class TestBlockExtractos(unittest.TestCase):
@@ -58,9 +63,36 @@ This is the same paragraph on a new line
             ("```\nThis is somecode block\n```", BlockType.CODE),
             ("````\nAnd this should not be code block```", BlockType.PARAGRAPH),
             ("```And\n this should not be code block as well```", BlockType.PARAGRAPH),
-            ("```\nAnd this should not be code block as well as well```", BlockType.PARAGRAPH),
+            (
+                "```\nAnd this should not be code block as well as well```",
+                BlockType.PARAGRAPH,
+            ),
         ]
         for case in cases:
             block, expected = case
             result = block_to_block_type(block)
             self.assertEqual(result, expected)
+
+    def test_extract_title(self):
+        cases = [
+            ("# Heading", "Heading"),
+            ("## Not heading\n# Heading right", "Heading right"),
+            ("## Not heading\n# Heading right as well\n### Not heading as well", "Heading right as well"),
+        ]
+        for case in cases:
+            md, expected = case
+            result = extract_title(md)
+            self.assertEqual(result, expected)
+
+    def test_extract_title_raise(self):
+        cases = [
+            "## No heading there",
+            "### And there as well",
+            "Nothing there",
+            "## # There should not be title as well",
+        ]
+
+        for md in cases:
+            with self.assertRaises(ValueError) as ar:
+                result = extract_title(md)
+                self.assertEqual(ar.exception, "No h1 found for title")
